@@ -1,17 +1,21 @@
 FROM node:16-alpine 
-# Set the working directory to /app inside the container
 WORKDIR /app
-# Copy app files
+COPY package.json ./
+RUN yarn install
+FROM node:16-alpine AS builder
+WORKDIR /app
 COPY . .
-# ==== BUILD =====
-# Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
-RUN npm ci 
-# Build the app
-RUN npm run build
-# ==== RUN =======
-# Set the env to "production"
+RUN yarn build
+FROM node:16-apline AS runer
+WORKDIR /app
+ADD . .
 ENV NODE_ENV production
-# Expose the port on which the app will be running (3000 is the default that `serve` uses)
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S frontend -u 1001
+RUN npm install -g serve
+
+USER frontend
 EXPOSE 3000
-# Start the app
-CMD [ "npx", "serve", "build" ]
+ENV PORT 3000
+
+CMD ["serve", "-s", "build", "-l", "3000"]
