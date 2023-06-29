@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+  Proyecto_final:
+    container_name: Proyecto_final_devops
+    image: node:16
+    build:
+      context: ./
+    volumes:
+      - ./:/app
+    ports:
+      - 3000:3000
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - proyecto_final_devops-network
+networks:
+  proyecto_final_devops-network:
+    external: true
